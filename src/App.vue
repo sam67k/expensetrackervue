@@ -1,174 +1,25 @@
 <template>
 	<div id="app">
 		<!-- HEADER -->
-		<h2>Expense Tracker</h2>
-
-		<div class="container">
-			<!-- BALANCE SUMMARY -->
-			<div>
-				<h4>Balance</h4>
-				<h1 id="balance">{{ currentBalance | toUSD }}</h1>
-			</div>
-			<div class="grid inc-exp-container">
-				<div class="col1">
-					<h4>Income</h4>
-					<p class="money plus">{{ income | toUSD }}</p>
-				</div>
-				<div class="col2">
-					<h4>Expense</h4>
-					<p class="money minus">{{ expense | toUSD }}</p>
-				</div>
-			</div>
-
-			<!-- TRANSACTION HISTORY -->
-			<div class="print">
-				<h4>Transaction History</h4>
-				<hr />
-				<ul class="list">
-					<div v-for="t in transactions" :key="t.id">
-						<li :class="t.amount > 0 ? 'plus' : 'minus'">
-							{{ t.detail }}
-							<span>{{ sign(t.amount) }}{{ Math.abs(t.amount) | toUSD }}</span>
-							<button class="delete-btn" @click="popTransaction(t.id)">
-								X
-							</button>
-						</li>
-					</div>
-				</ul>
-			</div>
-
-			<!-- ADD TRANSACTION -->
-			<h4>Add Transaction</h4>
-			<hr />
-			<form @submit.prevent="pushTransaction">
-				<div class="form-control">
-					<label>Description</label>
-					<input
-						type="text"
-						id="description"
-						v-model="transaction.detail"
-						placeholder="Detail of Transaction"
-						required="required"
-					/>
-					<label>Transaction Amount</label>
-					<input
-						type="number"
-						id="transactionamount"
-						v-model="transaction.amount"
-						placeholder="Dollar Value of Transaction"
-						required="required"
-					/>
-					<button class="btn">Add Transaction</button>
-				</div>
-			</form>
-		</div>
+		<Header />
+		<!-- BODY -->
+		<Body />
 	</div>
 </template>
 
 <script>
+	import Body from './components/Body.vue';
+	import Header from './components/Header.vue';
 	export default {
 		name: 'App',
-		data() {
-			return {
-				income: 0,
-				expense: 0,
-				currentBalance: 0,
-				transaction: {
-					id: 0,
-					detail: '',
-					amount: 0,
-				},
-				transactions: [],
-			};
-		},
-		methods: {
-			addIncome() {
-				this.income += Number(this.transaction.amount);
-				this.calculateBalanace();
-			},
-			addExpense() {
-				this.expense += Math.abs(Number(this.transaction.amount));
-				this.calculateBalanace();
-			},
-			calculateBalanace() {
-				this.currentBalance = Number(this.income) - Number(this.expense);
-			},
-			pushTransaction() {
-				var newtransaction = {
-					id: new Date().getTime(),
-					detail: this.transaction.detail,
-					amount: this.transaction.amount,
-				};
-				if (this.transaction.amount > 0) {
-					this.addIncome();
-				} else if (this.transaction.amount < 0) {
-					this.addExpense();
-				} else {
-					alert("Enter \"Transaction Amount\" other than \"0\"");
-					return false;
-				}
-				this.transactions.push(newtransaction);
-				this.resetState();
-			},
-			popTransaction(index) {
-				for (var i = 0; i < this.transactions.length; i++)
-					if (this.transactions[i].id === index) {
-						this.refreshState(i);
-						this.transactions.splice(i, 1);
-						break;
-					}
-			},
-			refreshState(index) {
-				if (this.transactions[index].amount > 0) {
-					this.income -= Math.abs(this.transactions[index].amount);
-				} else if (this.transactions[index].amount < 0) {
-					this.expense -= Math.abs(this.transactions[index].amount);
-				} else {
-					return false;
-				}
-				this.calculateBalanace();
-			},
-			resetState() {
-				this.transaction.id = 0;
-				this.transaction.detail = '';
-				this.transaction.amount = 0;
-			},
-			sign(value) {
-				return value > 0 ? '+' : '-';
-			},
-		},
-		filters: {
-			toUSD(value) {
-				return Intl.NumberFormat('en-US', {
-					style: 'currency',
-					currency: 'USD',
-				}).format(value);
-			},
+		components: {
+			Header,
+			Body,
 		},
 	};
 </script>
 
 <style>
-	#app {
-		width: 310px;
-	}
-
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(1, 1);
-		grid-auto-rows: minmax(auto, auto);
-		grid-auto-columns: 140px;
-		justify-content: center;
-	}
-	.col1 {
-		grid-column: 1 / 2;
-		grid-row: 1;
-	}
-	.col2 {
-		grid-column: 2 / 2;
-		grid-row: 1;
-	}
-
 	@import url('https://fonts.googleapis.com/css?family=Lato&display=swap');
 
 	:root {
@@ -188,11 +39,6 @@
 		min-height: 100vh;
 		margin: 0;
 		font-family: 'Lato', sans-serif;
-	}
-
-	.container {
-		margin: 30px auto;
-		width: 310px;
 	}
 
 	h1 {
@@ -218,6 +64,31 @@
 		margin: 0;
 		text-transform: uppercase;
 		text-align: center;
+	}
+
+	#app {
+		width: 290px;
+	}
+
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(1, 1);
+		grid-auto-rows: minmax(auto, auto);
+		grid-auto-columns: 140px;
+		justify-content: center;
+	}
+	.col1 {
+		grid-column: 1 / 2;
+		grid-row: 1;
+	}
+	.col2 {
+		grid-column: 2 / 2;
+		grid-row: 1;
+	}
+
+	.container {
+		margin: 30px auto;
+		width: 290px;
 	}
 
 	.inc-exp-container {
